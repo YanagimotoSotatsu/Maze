@@ -124,9 +124,49 @@ class ViewController: UIViewController {
             
             }
             
+            for wallRect in self.wallRectArray{
+                if (wallRect.intersects(self.playerView.frame)){
+                    self.gameCheck(result: "Game Over", message: "壁に当たりました。")
+                    return
+                }
+            }
+            
+            if (self.goalView.frame.intersects(self.playerView.frame)){
+                self.gameCheck(result: "Clear", message: "クリアしました！")
+                return
+            }
+            
             self.playerView.center = CGPoint(x: posX, y: posY)
         }
         playerMotionManager.startAccelerometerUpdates(to: OperationQueue.main, withHandler: handler)
+    }
+    
+    func gameCheck(result: String, message: String){
+        
+        if playerMotionManager.isAccelerometerActive{
+            playerMotionManager.stopAccelerometerUpdates()
+        }
+        
+        let gameCheckAlert: UIAlertController = UIAlertController(title: result, message: message, preferredStyle: .alert)
+        
+        let retryActiom = UIAlertAction(title: "もう一度", style: .default, handler: {
+            (action: UIAlertAction!) -> Void in
+            self.retry()
+        })
+        
+        gameCheckAlert.addAction(retryActiom)
+        
+        self.present(gameCheckAlert, animated: true, completion:  nil)
+    }
+    func retry(){
+        
+        playerView.center = startView.center
+        
+        if !playerMotionManager.isAccelerometerActive {
+            self.startAccelermeter()
+        }
+        speedX = 0.0
+        speedY = 0.0
     }
 
 
